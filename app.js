@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 
-const todoRouter = require("./routes/todo");
+const todoRoutes = require("./routes/todo");
 const authRoutes = require("./routes/auth");
 
 const bodyParser = require("body-parser");
@@ -24,6 +24,7 @@ app.use((req, res, next) => {
 // app.use("/home", todoRouter);
 
 app.use("/auth", authRoutes);
+app.use("/home", todoRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
