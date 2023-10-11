@@ -7,6 +7,9 @@ const todoSchema = new Schema(
       type: String,
       required: true,
     },
+    titleColor: {
+      type: String,
+    },
     content: {
       type: String,
       required: true,

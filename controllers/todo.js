@@ -10,6 +10,21 @@ exports.getTodos = async (req, res, next) => {
   }
 };
 
+exports.getUserTodos = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const todos = await Todo.find({ creator: userId });
+    if (!todos) {
+      const error = new Error("No todos Found!");
+      error.statusCode = 404;
+      throw error;
+    }
+    res.status(200).json({ msg: "Fetched successfully.", todos: todos });
+  } catch (e) {
+    handleErrors(e, next);
+  }
+};
+
 exports.createTodo = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -20,9 +35,10 @@ exports.createTodo = async (req, res, next) => {
   try {
     const userId = req.userId;
 
-    const { title, content } = req.body;
+    const { title, content, titleColor } = req.body;
     const todo = new Todo({
       title: title,
+      titleColor: titleColor,
       content: content,
       creator: userId,
     });
@@ -88,7 +104,7 @@ exports.updateTodo = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    const { title, content } = req.body;
+    const { title, content, titleColor } = req.body;
 
     if (todo.creator._id.toString() !== req.userId) {
       const error = new Error("Not authorized!");
@@ -97,6 +113,7 @@ exports.updateTodo = async (req, res, next) => {
     }
     todo.title = title;
     todo.content = content;
+    todo.titleColor = titleColor;
     const result = await todo.save();
 
     res.status(200).json({ msg: "Todo updated!", todo: todo });
@@ -106,12 +123,12 @@ exports.updateTodo = async (req, res, next) => {
 };
 
 exports.updateStatus = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const error = new Error("Validation failed, entered data is incorrect.");
-      error.statusCode = 422;
-      throw error;
-    }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed, entered data is incorrect.");
+    error.statusCode = 422;
+    throw error;
+  }
   try {
     const todoId = req.params.todoId;
     const todo = await Todo.findById(todoId);
@@ -122,9 +139,7 @@ exports.updateStatus = async (req, res, next) => {
     }
     const status = req.body.status;
 
-  
-      todo.completed = status;
-   
+    todo.completed = status;
 
     await todo.save();
     res.status(200).json({ msg: "Status updated successfully" });
