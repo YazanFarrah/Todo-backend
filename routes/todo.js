@@ -12,8 +12,8 @@ router.post(
   "/todo",
   isAuth,
   [
-    body("title").trim().isLength({ min: 3 }),
-    body("content").trim().isLength({ min: 3 }),
+    body("title").trim().notEmpty(),
+    body("content").trim().notEmpty(),
     body("titleColor").trim().notEmpty(),
   ],
 
@@ -23,10 +23,7 @@ router.post(
 router.patch(
   "/todo/:todoId",
   isAuth,
-  [
-    body("title").trim().isLength({ min: 3 }),
-    body("content").trim().isLength({ min: 3 }),
-  ],
+  [body("title").trim().notEmpty(), body("content").trim().notEmpty()],
   todosController.updateTodo
 );
 
@@ -36,6 +33,8 @@ router.patch(
   [body("status").isBoolean()],
   todosController.updateStatus
 );
+
+router.get("/completed-todos", isAuth, todosController.getCompletedTasks);
 
 router.delete(
   "/todo/:todoId",

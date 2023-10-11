@@ -1,19 +1,30 @@
 const { validationResult } = require("express-validator");
 const Todo = require("../models/todo");
 const User = require("../models/user");
-exports.getTodos = async (req, res, next) => {
+
+exports.getUserTodos = async (req, res, next) => {
   try {
-    const todos = await Todo.find();
+    const userId = req.userId;
+    const todos = await Todo.find({ creator: userId });
+    if (!todos) {
+      const error = new Error("No todos Found!");
+      error.statusCode = 404;
+      throw error;
+    }
+    // const sort = req.params.sort;
+    // if(sort==='asc'){
+    //   todos.sort()
+    // }
     res.status(200).json({ msg: "Fetched successfully.", todos: todos });
   } catch (e) {
     handleErrors(e, next);
   }
 };
 
-exports.getUserTodos = async (req, res, next) => {
+exports.getCompletedTasks = async (req, res, next) => {
   try {
     const userId = req.userId;
-    const todos = await Todo.find({ creator: userId });
+    const todos = await Todo.find({ creator: userId, completed: true });
     if (!todos) {
       const error = new Error("No todos Found!");
       error.statusCode = 404;
